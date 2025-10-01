@@ -31,3 +31,15 @@ You can add options to executable code like this
 ```
 
 The `echo: false` option disables the printing of code (only output is displayed).
+
+Ahora nos creamos un vector tipo caractér:
+
+```{r}
+vocales <- c("a","e","i","o","u")
+```
+
+Luego generamos 5 números aleatorios:
+
+```{r}
+runif(5)
+```
