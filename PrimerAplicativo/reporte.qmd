@@ -45,4 +45,40 @@ tb01 %>% kable(caption = "Resumen de montos promedio de crédito por Provincia")
       row_spec(1:3, bold = T, color = "white", background = "#224EC7")
 ```
 
+```{r}
+#| echo: false
+# Buscar columna de profesión
+profesion_col <- names(datos)[grep("PROFESION|profesion|Profesion", names(datos))][1]
 
+# Crear resumen simple por profesión
+if (!is.na(profesion_col)) {
+  res_profesion <- datos %>%
+    rename(Profesion = all_of(profesion_col)) %>%
+    count(Profesion) %>%
+    mutate(Porcentaje = round(100 * n / sum(n), 2)) %>%
+    arrange(desc(n)) %>%
+    rename(Creditos = n)
+  
+  top_profesiones <- head(res_profesion, 3)
+}
+```
+### Créditos otorgados a nivel de profesión
+
+`r if (!is.na(profesion_col)) { paste0("Las tres profesiones con más créditos son: ", top_profesiones$Profesion[1], " (", top_profesiones$Porcentaje[1], "%), ", top_profesiones$Profesion[2], " (", top_profesiones$Porcentaje[2], "%) y ", top_profesiones$Profesion[3], " (", top_profesiones$Porcentaje[3], "%).") } else { "No se encontró información de profesiones en los datos." }`
+
+```{r}
+#| echo: false
+if (!is.na(profesion_col)) {
+  res_profesion %>%
+    head(10) %>%
+    select(Profesion, Creditos, Porcentaje) %>%
+    kable(caption = "Top 10 Profesiones con Más Créditos") %>% 
+    kable_paper(full_width = FALSE, font_size = 14) %>% 
+    row_spec(0, bold = TRUE, color = "white", background = "#132b60")
+} else {
+  data.frame(Información = "Datos de profesión no disponibles") %>%
+    kable() %>% 
+    kable_paper(full_width = FALSE, font_size = 14)
+}
+
+```
