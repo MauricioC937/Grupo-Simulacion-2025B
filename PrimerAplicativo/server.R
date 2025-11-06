@@ -63,6 +63,31 @@ function(input, output, session) {
       row_spec(0, background = "#132b60", color = "#ffffff")
     HTML(tab02)
   }
+
+output$TablaSexoCargas <- function(){
+    res03 <- datos() %>%
+      filter(!is.na(TOTALACTIVOS)) %>%
+      group_by(SEXO, NUMERO_CARGAS) %>% 
+      summarise(
+        Min_TOTALACTIVOS = min(TOTALACTIVOS, na.rm = TRUE),
+        Max_TOTALACTIVOS = max(TOTALACTIVOS, na.rm = TRUE),
+        Promedio_MontoCredito = round(mean(MONTO_OTORGADO, na.rm = TRUE),2),
+        Promedio_DiasMora = round(mean(DIAS_MORA_CON_TRAD, na.rm = TRUE),2)
+      ) %>%
+      mutate(
+        Min_TOTALACTIVOS = paste('$', round(Min_TOTALACTIVOS, 2)),
+        Max_TOTALACTIVOS = paste('$', round(Max_TOTALACTIVOS, 2)),
+        Promedio_MontoCredito = paste('$', round(Promedio_MontoCredito, 2)),
+        Porcentaje_Mora = paste0(round(Promedio_DiasMora * 100, 2), "%")
+      ) %>%
+      select(SEXO, NUMERO_CARGAS, Min_TOTALACTIVOS, Max_TOTALACTIVOS, 
+         Promedio_MontoCredito, Porcentaje_Mora)
+    colnames(res03) <- c('Sexo', 'Número Cargas', 'Min Total Activos','Max Total Activos', 'Crédito Promedio', 'Mora Promedio')
+    tab03 <- res03 %>% kable("html", booktabs = TRUE) %>% kable_styling(font_size = 11, full_width = FALSE) %>%
+      row_spec(0, background = "#132b60", color = "#ffffff")
+    HTML(tab03)
+    }
+
   
   archivo <- reactive({
     req(input$file)
@@ -116,4 +141,5 @@ function(input, output, session) {
   )
   
   
+
 }
