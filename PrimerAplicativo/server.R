@@ -88,6 +88,96 @@ output$TablaSexoCargas <- function(){
     HTML(tab03)
     }
 
+  #TABLA DE PROFESIÓN
+  output$TablaProfesion <- function(){
+    req(datos())
+    
+      datos_df <- datos()
+      #Buscar columna de profesión
+      profesion_col <- NULL
+      for (col in names(datos_df)) {
+        if (grepl("profesion", tolower(col))) {
+          profesion_col <- col
+          break
+        }
+      }
+      
+      if (is.null(profesion_col)) {
+        stop("No se encontró columna de profesión")
+      }
+      
+      cat("Usando columna de profesión:", profesion_col, "\n")
+      
+      #Tbla simple de conteo por profesión
+      tabla <- datos_df %>%
+        rename(Profesion = all_of(profesion_col)) %>%
+        count(Profesion) %>%
+        arrange(desc(n)) %>%
+        rename(`Número de Créditos` = n)
+      
+      #Tabla
+      tab_profesion <- tabla %>%
+        kable("html", escape = FALSE, booktabs = TRUE) %>%
+        kable_styling(font_size = 11, full_width = FALSE) %>%
+        row_spec(0, background = "#132b60", color = "#ffffff") %>%
+        scroll_box(width = "100%", height = "400px")
+      
+      return(HTML(tab_profesion))
+  }
+  
+  #GRÁFICO DE PROFESIÓN
+  output$GraficoProfesion <- renderPlot({
+    req(datos())
+      datos_df <- datos()
+    
+      profesion_col <- NULL
+      for (col in names(datos_df)) {
+        if (grepl("profesion", tolower(col))) {
+          profesion_col <- col
+          break
+        }
+      }
+      
+      if (is.null(profesion_col)) {
+        stop("No se encontró columna de profesión")
+      }
+    
+      datos_grafico <- datos_df %>%
+        rename(Profesion = all_of(profesion_col)) %>%
+        count(Profesion) %>%
+        arrange(desc(n)) %>%
+        head(10)  #Top 10 profesiones
+      
+      if (nrow(datos_grafico) == 0) {
+        stop("No hay datos suficientes")
+      }
+      
+      #Gráfico
+      p <- ggplot(datos_grafico, aes(x = reorder(Profesion, n), y = n)) +
+        geom_col(fill = "#132b60", alpha = 0.8) +
+        labs(
+          title = "Top 10 Profesiones con Más Créditos",
+          x = "Profesión",
+          y = "Número de Créditos"
+        ) +
+        theme_minimal() +
+        theme(
+          axis.text.x = element_text(angle = 45, hjust = 1),
+          plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank()
+        ) +
+        coord_flip()
+      
+      return(p)
+      
+      p_error <- ggplot(df_error, aes(x = x, y = y)) +
+        geom_text(aes(label = label), size = 5, color = "red") +
+        theme_void() +
+        labs(title = "No se pudo generar el gráfico")
+      
+      return(p_error)
+  })
   
   archivo <- reactive({
     req(input$file)
@@ -143,3 +233,4 @@ output$TablaSexoCargas <- function(){
   
 
 }
+
