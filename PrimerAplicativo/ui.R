@@ -34,7 +34,10 @@ fluidPage(
                           tableOutput("CreditosXProv"),
                           hr(),
                           h1("Resumen de Activos, Crédito y Mora según Sexo y Número de Cargas"),
-                          tableOutput("TablaSexoCargas")
+                          tableOutput("TablaSexoCargas"),
+                          hr(),
+                          h1("Análisis de Profesión"),
+                          tableOutput("TablaProfesion")                      
                  ),
                  tabPanel("Gráficos",
                           fluidRow(
@@ -45,9 +48,9 @@ fluidPage(
                             column(12, h1("Gráfico Dispersión")),
                             column(6, uiOutput("VarCuantitativa")),
                             column(6, uiOutput("VarCuantitativa2")),
-                            column(12,
-                                   plotOutput("Grafico02")
-                            )
+                            column(12, plotOutput("Grafico02")),
+                            column(12, h1("Análisis Monto vs Cuota por Profesión")),
+                            column(12, plotOutput("GraficoProfesion"))
                           )
                  ),
                  tabPanel("Informe")
@@ -55,4 +58,5 @@ fluidPage(
     )
   )
 )
+
 
