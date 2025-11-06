@@ -31,7 +31,10 @@ fluidPage(
                           tableOutput("TablaVariable"),
                           hr(),
                           h1("Número de créditos otorgados por Provincia"),
-                          tableOutput("CreditosXProv")
+                          tableOutput("CreditosXProv"),
+                          hr(),
+                          h1("Resumen de Activos, Crédito y Mora según Sexo y Número de Cargas"),
+                          tableOutput("TablaSexoCargas")
                  ),
                  tabPanel("Gráficos",
                           fluidRow(
@@ -52,3 +55,4 @@ fluidPage(
     )
   )
 )
+
