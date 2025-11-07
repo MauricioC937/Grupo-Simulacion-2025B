@@ -118,4 +118,61 @@ moraSCP %>%
   row_spec(0, bold = T, color = "white", background = "#9C27B0") %>% 
   row_spec(1:6, bold = T, color = "black", background = "#E1BEE7")
 ```
+### Resumen realizado a partir de grupos por edades
+A continuación se presenta lo obtenido al dividir a los individuos en funcion de sus edades en grupos determinados.
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+res04 <- datos %>%
+mutate(
+FECHANACIMIENTO = as.Date(FECHANACIMIENTO),
+EDAD = floor(interval(FECHANACIMIENTO, Sys.Date()) / years(1)),
+GRUPO_EDAD = cut(
+EDAD,
+breaks = c(18, 24, 31, 39, 49, 59, 100),
+labels = c("18-24", "25-31", "32-39", "40-49", "50-59", "60-100"),
+right = FALSE
+),
+RATIO_ENDEUDAMIENTO = MONTO_OTORGADO / TOTALINGRESOS
+) %>%
+filter(
+TOTALINGRESOS >= quantile(TOTALINGRESOS, 0.02, na.rm = TRUE) &
+TOTALINGRESOS <= quantile(TOTALINGRESOS, 0.98, na.rm = TRUE)
+) %>%
+group_by(GRUPO_EDAD) %>%
+summarise(
+N = n(),
+INGRESO_PROMEDIO = mean(TOTALINGRESOS, na.rm = TRUE),
+MONTOCREDITO_PROMEDIO = mean(MONTO_OTORGADO, na.rm = TRUE),
+RATIO_ENDEUDAMIENTO_PROM = mean(RATIO_ENDEUDAMIENTO, na.rm = TRUE)
+)
+```
 
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+res04_long <- res04 %>%
+pivot_longer(cols = c(INGRESO_PROMEDIO, MONTOCREDITO_PROMEDIO),
+names_to = "Variable", values_to = "Valor")
+
+ggplot(res04_long, aes(x = GRUPO_EDAD, y = Valor, fill = Variable)) +
+geom_col(position = "dodge") +
+scale_fill_manual(values = c("#0072B2", "#E69F00")) +
+labs(title = "Ingreso vs Crédito Promedio por Grupo de Edad",
+x = "Grupo de Edad", y = "Promedio (USD)") +
+theme_minimal()
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+ggplot(res04, aes(x = GRUPO_EDAD, y = N)) +
+geom_col(fill = "#0072B2") +
+geom_text(aes(label = N), vjust = -0.5) +
+labs(title = "Cantidad de Personas por Grupo de Edad",
+x = "Grupo de Edad", y = "Número de personas") +
+theme_minimal()
+```
