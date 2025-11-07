@@ -57,7 +57,9 @@ fluidPage(
                             column(12 ,h1("Análisis por grupo de edad")),
                             column(12, plotOutput("GraficoEdades1")),
                             column(12, plotOutput("GraficoEdades3")),
-                            column(12, plotOutput("GraficoEdades4"))
+                            column(12, plotOutput("GraficoEdades4")),
+                            column(12, h1("Análisis por Sexo y Número de Cargas")),
+                            column(12,plotOutput("GraficoSexoCargas"))
                           )
                  ),
                  tabPanel("Informe")
