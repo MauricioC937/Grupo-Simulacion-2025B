@@ -88,6 +88,31 @@ output$TablaSexoCargas <- function(){
       row_spec(0, background = "#132b60", color = "#ffffff")
     HTML(tab03)
     }
+  # Gráfica de la información
+  output$GraficoSexoCargas <- renderPlot({
+    datos() %>%
+      filter(!is.na(TOTALACTIVOS)) %>%
+      group_by(SEXO, NUMERO_CARGAS) %>% 
+      summarise(
+        Promedio_MontoCredito = mean(MONTO_OTORGADO, na.rm = TRUE),
+        Promedio_DiasMora = mean(DIAS_MORA_CON_TRAD, na.rm = TRUE)
+      ) %>%
+      ggplot(aes(x = factor(NUMERO_CARGAS),
+                 y = Promedio_MontoCredito,
+                 fill = SEXO)) +
+      geom_bar(stat = "identity", position = position_dodge()) +
+      labs(
+        title = "Crédito Promedio por Sexo y Número de Cargas",
+        x = "Número de Cargas",
+        y = "Crédito Promedio ($)",
+        fill = "Sexo"
+      ) +
+      theme_minimal(base_size = 12) +
+      theme(
+        plot.title = element_text(hjust = 0.5, face = "bold"),
+        legend.position = "bottom"
+      )
+  })
 
   #TABLA DE PROFESIÓN
   output$TablaProfesion <- function(){
