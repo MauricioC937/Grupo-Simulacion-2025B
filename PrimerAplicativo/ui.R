@@ -37,7 +37,10 @@ fluidPage(
                           tableOutput("TablaSexoCargas"),
                           hr(),
                           h1("Análisis de Profesión"),
-                          tableOutput("TablaProfesion")                      
+                          tableOutput("TablaProfesion"),
+                          hr(),
+                          h1("Tabla por rango de Edades"),
+                          uiOutput("TablaEdades")
                  ),
                  tabPanel("Gráficos",
                           fluidRow(

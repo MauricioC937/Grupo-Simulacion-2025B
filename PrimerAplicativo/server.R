@@ -4,6 +4,7 @@ library(readxl)
 library(kableExtra)
 library(formattable)
 library(quarto)
+library(lubridate)
 
 # Define server logic required to draw a histogram
 function(input, output, session) {
@@ -124,6 +125,43 @@ output$TablaSexoCargas <- function(){
       
       return(HTML(tab_profesion))
   }
+  
+  output$TablaEdades <- renderUI({
+    req(datos())
+    
+    res04 <- datos() %>%
+      mutate(
+        FECHANACIMIENTO = as.Date(FECHANACIMIENTO),
+        EDAD = floor(interval(FECHANACIMIENTO, Sys.Date()) / years(1)),
+        GRUPO_EDAD = cut(
+          EDAD,
+          breaks = c(18, 24, 31, 39, 49, 59, 100),
+          labels = c("18-24", "25-31", "32-39", "40-49", "50-59", "60-100"),
+          right = FALSE
+        ),
+        RATIO_ENDEUDAMIENTO = MONTO_OTORGADO / TOTALINGRESOS
+      ) %>%
+      group_by(GRUPO_EDAD) %>%
+      filter(
+        TOTALINGRESOS >= quantile(TOTALINGRESOS, 0.02, na.rm = TRUE) &
+          TOTALINGRESOS <= quantile(TOTALINGRESOS, 0.98, na.rm = TRUE)
+      ) %>%
+      summarise(
+        INGRESO_PROMEDIO = mean(TOTALINGRESOS, na.rm = TRUE),
+        MONTOCREDITO_PROMEDIO = mean(MONTO_OTORGADO, na.rm = TRUE),
+        RATIO_ENDEUDAMIENTO_PROM = mean(RATIO_ENDEUDAMIENTO, na.rm = TRUE),
+        N = n(),
+        .groups = "drop"
+      ) %>%
+      arrange(GRUPO_EDAD)
+    
+    tab04 <- res04 %>%
+      kable(format = "html", digits = 2, align = "c") %>%
+      kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover")) %>%
+      row_spec(0, background = "#132b60", color = "#ffffff")
+    
+    HTML(tab04)
+  })
   
   #GRÁFICO DE PROFESIÓN
   output$GraficoProfesion <- renderPlot({
