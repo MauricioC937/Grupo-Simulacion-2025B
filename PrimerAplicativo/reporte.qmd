@@ -82,3 +82,40 @@ if (!is.na(profesion_col)) {
 }
 
 ```
+### Resumen de activos, crédito y mora por Sexo y Número de cargas
+A continuación, se presenta un resumen de los activos totales, monto promedio de crédito otorgado y días promedio de mora según el sexo del solicitante y el número de cargas familiares que poseen:
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+# Cálculo según Sexo y Número de cargas
+moraSCP <- datos %>%
+  filter(!is.na(TOTALACTIVOS)) %>%
+  group_by(SEXO, NUMERO_CARGAS) %>% 
+  summarise(
+    Min_TOTALACTIVOS = min(TOTALACTIVOS, na.rm = TRUE),
+    Max_TOTALACTIVOS = max(TOTALACTIVOS, na.rm = TRUE),
+    Promedio_MontoCredito = mean(MONTO_OTORGADO, na.rm = TRUE),
+    Promedio_DiasMora = mean(DIAS_MORA_CON_TRAD, na.rm = TRUE)
+  ) %>% 
+  mutate(
+    Min_TOTALACTIVOS = paste('$', round(Min_TOTALACTIVOS, 2)),
+    Max_TOTALACTIVOS = paste('$', round(Max_TOTALACTIVOS, 2)),
+    Promedio_MontoCredito = paste('$', round(Promedio_MontoCredito, 2)),
+    Promedio_DiasMora = round(Promedio_DiasMora, 4)
+  )
+
+colnames(moraSCP) <- c(
+  'Sexo', 'Número Cargas', 'Min Total Activos', 
+  'Max Total Activos', 'Promedio Monto Crédito', 'Promedio Días Mora'
+)
+
+moraSCP %>% 
+  kable(caption = 'Resumen de Activos, Monto de Crédito y Días de Mora según Sexo y Número de Cargas') %>% 
+  kable_paper(full_width = F, font_size = 18) %>% 
+  row_spec(0, bold = T, color = "white", background = "#9C27B0") %>% 
+  row_spec(1:6, bold = T, color = "black", background = "#E1BEE7")
+```
+
