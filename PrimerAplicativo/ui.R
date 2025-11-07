@@ -53,7 +53,11 @@ fluidPage(
                             column(6, uiOutput("VarCuantitativa2")),
                             column(12, plotOutput("Grafico02")),
                             column(12, h1("Análisis Monto vs Cuota por Profesión")),
-                            column(12, plotOutput("GraficoProfesion"))
+                            column(12, plotOutput("GraficoProfesion")),
+                            column(12 ,h1("Análisis por grupo de edad")),
+                            column(12, plotOutput("GraficoEdades1")),
+                            column(12, plotOutput("GraficoEdades3")),
+                            column(12, plotOutput("GraficoEdades4"))
                           )
                  ),
                  tabPanel("Informe")

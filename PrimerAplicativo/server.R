@@ -216,6 +216,101 @@ output$TablaSexoCargas <- function(){
       
       return(p_error)
   })
+  output$GraficoEdades1 <- renderPlot({
+    req(datos())
+    
+    res04 <- datos() %>%
+      mutate(
+        FECHANACIMIENTO = as.Date(FECHANACIMIENTO),
+        EDAD = floor(interval(FECHANACIMIENTO, Sys.Date()) / years(1)),
+        GRUPO_EDAD = cut(
+          EDAD,
+          breaks = c(18, 24, 31, 39, 49, 59, 100),
+          labels = c("18-24", "25-31", "32-39", "40-49", "50-59", "60-100"),
+          right = FALSE
+        ),
+        RATIO_ENDEUDAMIENTO = MONTO_OTORGADO / TOTALINGRESOS
+      ) %>%
+      group_by(GRUPO_EDAD) %>%
+      filter(
+        TOTALINGRESOS >= quantile(TOTALINGRESOS, 0.02, na.rm = TRUE) &
+          TOTALINGRESOS <= quantile(TOTALINGRESOS, 0.98, na.rm = TRUE)
+      ) %>%
+      summarise(
+        INGRESO_PROMEDIO = mean(TOTALINGRESOS, na.rm = TRUE),
+        MONTOCREDITO_PROMEDIO = mean(MONTO_OTORGADO, na.rm = TRUE),
+        RATIO_ENDEUDAMIENTO_PROM = mean(RATIO_ENDEUDAMIENTO, na.rm = TRUE)
+      ) %>%
+      pivot_longer(cols = c(INGRESO_PROMEDIO, MONTOCREDITO_PROMEDIO),
+                   names_to = "Variable", values_to = "Valor")
+    
+    ggplot(res04, aes(x = GRUPO_EDAD, y = Valor, fill = Variable)) +
+      geom_col(position = "dodge") +
+      scale_fill_manual(values = c("#0072B2", "#E69F00")) +
+      labs(title = "Ingreso vs Crédito Promedio por Grupo de Edad",
+           x = "Grupo de Edad", y = "Promedio (USD)") +
+      theme_minimal()
+  })
+  output$GraficoEdades3 <- renderPlot({
+    req(datos())
+    
+    res04 <- datos() %>%
+      mutate(
+        FECHANACIMIENTO = as.Date(FECHANACIMIENTO),
+        EDAD = floor(interval(FECHANACIMIENTO, Sys.Date()) / years(1)),
+        GRUPO_EDAD = cut(
+          EDAD,
+          breaks = c(18, 24, 31, 39, 49, 59, 100),
+          labels = c("18-24", "25-31", "32-39", "40-49", "50-59", "60-100"),
+          right = FALSE
+        )
+      ) %>%
+      group_by(GRUPO_EDAD) %>%
+      summarise(N = n())
+    
+    ggplot(res04, aes(x = GRUPO_EDAD, y = N)) +
+      geom_col(fill = "#0072B2") +
+      geom_text(aes(label = N), vjust = -0.5) +
+      labs(title = "Cantidad de Personas por Grupo de Edad",
+           x = "Grupo de Edad", y = "Número de personas") +
+      theme_minimal()
+  })
+  output$GraficoEdades4 <- renderPlot({
+    req(datos())
+    
+    res04 <- datos() %>%
+      mutate(
+        FECHANACIMIENTO = as.Date(FECHANACIMIENTO),
+        EDAD = floor(interval(FECHANACIMIENTO, Sys.Date()) / years(1)),
+        GRUPO_EDAD = cut(
+          EDAD,
+          breaks = c(18, 24, 31, 39, 49, 59, 100),
+          labels = c("18-24", "25-31", "32-39", "40-49", "50-59", "60-100"),
+          right = FALSE
+        ),
+        RATIO_ENDEUDAMIENTO = MONTO_OTORGADO / TOTALINGRESOS
+      ) %>%
+      group_by(GRUPO_EDAD) %>%
+      summarise(
+        INGRESO_PROMEDIO = mean(TOTALINGRESOS, na.rm = TRUE),
+        RATIO_ENDEUDAMIENTO_PROM = mean(RATIO_ENDEUDAMIENTO, na.rm = TRUE)
+      )
+    
+    ggplot(res04, aes(x = GRUPO_EDAD)) +
+      geom_col(aes(y = INGRESO_PROMEDIO), fill = "#0072B2", alpha = 0.6) +
+      geom_line(aes(y = RATIO_ENDEUDAMIENTO_PROM * max(INGRESO_PROMEDIO),
+                    group = 1), color = "#E69F00", size = 1.2) +
+      geom_point(aes(y = RATIO_ENDEUDAMIENTO_PROM * max(INGRESO_PROMEDIO)),
+                 color = "#E69F00", size = 3) +
+      scale_y_continuous(
+        name = "Ingreso Promedio (USD)",
+        sec.axis = sec_axis(~./max(res04$INGRESO_PROMEDIO),
+                            name = "Ratio de Endeudamiento")
+      ) +
+      labs(title = "Relación entre Ingreso y Ratio de Endeudamiento por Grupo de Edad",
+           x = "Grupo de Edad") +
+      theme_minimal()
+  })
   
   archivo <- reactive({
     req(input$file)
